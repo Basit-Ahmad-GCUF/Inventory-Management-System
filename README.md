@@ -27,7 +27,7 @@ Inventory Management/
 
 ## 🖼️ Images
 
-<img width="1920" height="1000" alt="Screenshot (36)" src="https://github.com/user-attachments/assets/bf9cf2b7-c76c-4545-b4c4-2bd50f371eca" />
+<img width="1920" height="1000" alt="Screenshot (37)" src="https://github.com/user-attachments/assets/8e1cd539-dbab-4b63-81b9-ea19fa1680b8" />
 
 ## ▶️ How to Run
 ```bash
