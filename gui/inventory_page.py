@@ -1,0 +1,72 @@
+from PyQt6.QtWidgets import (
+    QWidget, QVBoxLayout, QHBoxLayout, 
+    QLineEdit, QPushButton, QTableView, QHeaderView
+)
+from PyQt6.QtGui import QStandardItemModel, QStandardItem
+from PyQt6.QtCore import Qt
+
+class Inventory_Page(QWidget):
+    
+    def __init__(self):
+        super().__init__()
+        self.main_inventory_layout = QVBoxLayout(self)
+        self.set_ui()
+        self.set_model()
+        
+    def set_ui(self):
+        
+        # Top Tool Bar
+        self.top_tool_bar = QWidget()
+        self.top_tool_bar_layout = QHBoxLayout(self.top_tool_bar)
+        
+        self.search_bar = QLineEdit()
+        self.Add_button = QPushButton("Add Item")
+        self.Modify_button = QPushButton("Modify Item")
+        self.Delete_button = QPushButton("Delete Item")
+        
+        self.top_tool_bar_layout.addWidget(self.search_bar)
+        self.top_tool_bar_layout.addWidget(self.Add_button)
+        self.top_tool_bar_layout.addWidget(self.Modify_button)
+        self.top_tool_bar_layout.addWidget(self.Delete_button)
+        
+        # The Table For Holding all the Items in it.
+        self.table_view = QTableView()
+        
+        # Table Styling & Scroll Behavior
+        self.table_view.setSelectionBehavior(QTableView.SelectionBehavior.SelectRows)   # Select full row
+        self.table_view.setSelectionMode(QTableView.SelectionMode.SingleSelection)      # 1 row at a time
+        self.table_view.setAlternatingRowColors(True)                                   # Clean zebra striping
+        self.table_view.setSortingEnabled(True)                                         # Allow header click sorting
+
+        # Ensure vertical & horizontal scrollbars appear automatically when needed
+        self.table_view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.table_view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        
+        # Adding It to the Main Inventory Widget So We Can Place It.
+        self.main_inventory_layout.addWidget(self.top_tool_bar)
+        self.main_inventory_layout.addWidget(self.table_view)
+        
+        # Stretch columns cleanly across available space
+        Table_header = self.table_view.horizontalHeader()
+        Table_header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        
+    def set_model(self):
+        self.Item_model = QStandardItemModel()
+        self.Item_model.setHorizontalHeaderLabels(["ID", "Name", "Cost", "Quantity", "Description", "Entry Date", "Expirey Date"])
+        
+        self.table_view.setModel(self.Item_model)
+        
+        self.add_item_to_table("Ap1", "Apple Watch I3", 1500.00, 100, "Apple Wrist Watch Smart LED Screen", "12/1/2025", "No Expirey")
+        self.add_item_to_table("Sb2", "Audionnic Sound Bar", 1250.00, 20, "Audionic Sound Bar High Battery Capacity", "No Entry", "No Expirey")
+        
+    def add_item_to_table(self, id, name, cost, quantity, description, entry_date, expirey_date):
+        row = [
+            QStandardItem(str(id)),
+            QStandardItem(str(name)),
+            QStandardItem(f"{cost:.2f}"),  # Formats float to 2 decimal places as str
+            QStandardItem(str(quantity)),  # Converts int to str
+            QStandardItem(str(description)),
+            QStandardItem(str(entry_date)),
+            QStandardItem(str(expirey_date))
+        ]
+        self.Item_model.appendRow(row)
