@@ -25,6 +25,10 @@ Inventory Management/
 └── main.py
 ```
 
+## 🖼️ Images
+
+<img width="1920" height="1000" alt="Screenshot (37)" src="https://github.com/user-attachments/assets/8e1cd539-dbab-4b63-81b9-ea19fa1680b8" />
+
 ## ▶️ How to Run
 ```bash
 pip install PyQt6
