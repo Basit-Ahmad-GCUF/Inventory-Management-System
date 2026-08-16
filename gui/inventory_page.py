@@ -24,6 +24,8 @@ class Inventory_Page(QWidget):
         self.Modify_button = QPushButton("Modify Item")
         self.Delete_button = QPushButton("Delete Item")
         
+        self.search_bar.setPlaceholderText("Search Inventory")
+        
         self.top_tool_bar_layout.addWidget(self.search_bar)
         self.top_tool_bar_layout.addWidget(self.Add_button)
         self.top_tool_bar_layout.addWidget(self.Modify_button)
