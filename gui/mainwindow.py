@@ -5,8 +5,9 @@ from PyQt6.QtWidgets import (
 from gui.inventory_page import Inventory_Page
 
 class MainWindow(QMainWindow):
-    def __init__(self):
+    def __init__(self, inventory):
         super().__init__()
+        self.inventory = inventory
         self._build_ui()
         self._connect_signals()
 
@@ -70,7 +71,7 @@ class MainWindow(QMainWindow):
         p1_layout = QVBoxLayout(p1)
         p1_layout.addWidget(QLabel("Welcome to the Dashboard"))
         
-        p2 = Inventory_Page()
+        p2 = Inventory_Page(self.inventory)
         
         p3 = QWidget()
         p3_layout = QVBoxLayout(p3)

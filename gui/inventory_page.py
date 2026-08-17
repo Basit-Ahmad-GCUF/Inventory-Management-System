@@ -1,21 +1,34 @@
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, 
-    QLineEdit, QPushButton, QTableView, QHeaderView
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel,
+    QLineEdit, QPushButton, QTableView, QHeaderView, QAbstractItemView, QDialog
 )
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
 from PyQt6.QtCore import Qt
+from gui.add_item_dialog import Add_Item
 
 class Inventory_Page(QWidget):
     
-    def __init__(self):
+    def __init__(self, inventory):
         super().__init__()
+        self.inventory = inventory
         self.main_inventory_layout = QVBoxLayout(self)
         self.set_ui()
         self.set_model()
-        
+        self.set_connection()
+    
+    def set_connection(self):
+        self.Add_button.clicked.connect(self.manage_add_item)
+    
     def set_ui(self):
+        # Top Text Headers.
         
-        # Top Tool Bar
+        self.Top_label = QLabel("Inventory Management")
+        font = self.Top_label.font()
+        font.setPointSize(20)
+        font.setBold
+        self.Top_label.setFont(font)
+        
+        # Top Tool Bar.
         self.top_tool_bar = QWidget()
         self.top_tool_bar_layout = QHBoxLayout(self.top_tool_bar)
         
@@ -43,23 +56,35 @@ class Inventory_Page(QWidget):
         # Ensure vertical & horizontal scrollbars appear automatically when needed
         self.table_view.setVerticalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
         self.table_view.setHorizontalScrollBarPolicy(Qt.ScrollBarPolicy.ScrollBarAsNeeded)
+        self.table_view.setEditTriggers(QAbstractItemView.EditTrigger.NoEditTriggers)
         
         # Adding It to the Main Inventory Widget So We Can Place It.
+        self.main_inventory_layout.addWidget(self.Top_label)
         self.main_inventory_layout.addWidget(self.top_tool_bar)
         self.main_inventory_layout.addWidget(self.table_view)
         
         # Stretch columns cleanly across available space
         Table_header = self.table_view.horizontalHeader()
-        Table_header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        if Table_header is not None:
+            Table_header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         
     def set_model(self):
         self.Item_model = QStandardItemModel()
         self.Item_model.setHorizontalHeaderLabels(["ID", "Name", "Cost", "Quantity", "Description", "Entry Date", "Expirey Date"])
         
         self.table_view.setModel(self.Item_model)
-        
-        self.add_item_to_table("Ap1", "Apple Watch I3", 1500.00, 100, "Apple Wrist Watch Smart LED Screen", "12/1/2025", "No Expirey")
-        self.add_item_to_table("Sb2", "Audionnic Sound Bar", 1250.00, 20, "Audionic Sound Bar High Battery Capacity", "No Entry", "No Expirey")
+        # Adding Items to Table
+        items = self.inventory.get_all_items()
+        for item in items:
+            self.add_item_to_table(
+                item["id"],
+                item["name"],
+                item["cost"],
+                item["quantity"],
+                item["description"],
+                item["entry_date"],
+                item["expiry_date"]
+            )
         
     def add_item_to_table(self, id, name, cost, quantity, description, entry_date, expirey_date):
         row = [
@@ -72,3 +97,29 @@ class Inventory_Page(QWidget):
             QStandardItem(str(expirey_date))
         ]
         self.Item_model.appendRow(row)
+        
+    def manage_add_item(self):
+        dialog = Add_Item()
+        if dialog.exec() == QDialog.DialogCode.Accepted:
+            item = dialog.get_item_data()
+            # Adding to Database with separate values
+            self.inventory.add_item(
+                item["id"],
+                item["name"],
+                item["cost"],
+                item["quantity"],
+                item["description"],
+                item["entry_date"],
+                item["expiry_date"]
+            )
+            # Adding to Table
+            print(item)
+            self.add_item_to_table(
+                item["id"],
+                item["name"],
+                item["cost"],
+                item["quantity"],
+                item["description"],
+                item["entry_date"],
+                item["expiry_date"]
+            )

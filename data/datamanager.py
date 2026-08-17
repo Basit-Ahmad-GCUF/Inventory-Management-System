@@ -31,7 +31,7 @@ class Data_Manager:
                                 quantity INTEGER NOT NULL,
                                 description TEXT,
                                 entry_date TEXT,
-                                expirey_date TEXT
+                                expiry_date TEXT
                             )
                             """)
         

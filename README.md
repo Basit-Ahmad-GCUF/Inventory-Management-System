@@ -1,4 +1,4 @@
-# 📦 Inventory Management System
+# 📦 **Inventory Management System**
 
 A Python-based Inventory and Billing Management System with a GUI built using PyQt6.
 
@@ -10,24 +10,38 @@ A Python-based Inventory and Billing Management System with a GUI built using Py
 - ⚙️ Settings — Shop name, currency, tax rate
 
 ## 🛠️ Tech Stack
-- Python 3.x
-- PyQt6
-- Database (Not Selected Yet)
+- Language : **Python 🐍**
+- GUI Library : **PyQt6**
+- Database : **SQLite3**
 
 ## 📁 Project Structure
 ```
 Inventory Management/
 ├── bill/
+|     ├── bill_item.py
+|     ├── billingmanager.py
+|     └── bills.py
 ├── data/
-├── inventory/
-├── users/
+|     ├── datamanager.py
+|     └── (inventory.db)
 ├── gui/
+|     ├── add_item_dialog.py
+|     ├── inventory_page.py
+|     ├── loginwindow.py
+|     └── mainwindow.py
+├── inventory/
+|     └── inventory.py
+├── users/
+|     ├── authenticate.py
+|     ├── controller.py
+|     └── users.py
 └── main.py
+
 ```
 
 ## 🖼️ Images
 
-<img width="1920" height="1000" alt="Screenshot (37)" src="https://github.com/user-attachments/assets/8e1cd539-dbab-4b63-81b9-ea19fa1680b8" />
+
 
 ## ▶️ How to Run
 ```bash
@@ -39,9 +53,9 @@ python main.py
 Basit Ahmad — [@Basit-Ahmad-GCUF](https://github.com/Basit-Ahmad-GCUF)
 
 ## 📌 Status
-🔨 Under active development
+🔨 **Under active development**
 
-## 📬 Connect With Me
+### 📬 Connect With Me
 
 <p align="center">
   <a href="https://www.linkedin.com/in/basit-ahmad-gcuf" target="_blank">
