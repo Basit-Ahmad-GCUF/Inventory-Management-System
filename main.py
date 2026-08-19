@@ -13,5 +13,4 @@ if __name__ == "__main__":
     window = MainWindow(inventory)
 
     window.show()
-    
     app.exec()

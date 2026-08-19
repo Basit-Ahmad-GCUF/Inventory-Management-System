@@ -3,8 +3,8 @@ from PyQt6.QtWidgets import (
     QLineEdit, QPushButton, QTableView, QHeaderView, QAbstractItemView, QDialog
 )
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
-from PyQt6.QtCore import Qt
-from gui.add_item_dialog import Add_Item
+from PyQt6.QtCore import QRegularExpression, QSortFilterProxyModel, Qt
+from gui.inventory.add_item_dialog import Add_Item
 
 class Inventory_Page(QWidget):
     
@@ -18,6 +18,7 @@ class Inventory_Page(QWidget):
     
     def set_connection(self):
         self.Add_button.clicked.connect(self.manage_add_item)
+        self.search_bar.textChanged.connect(self.filter_search)
     
     def set_ui(self):
         # Top Text Headers.
@@ -25,7 +26,7 @@ class Inventory_Page(QWidget):
         self.Top_label = QLabel("Inventory Management")
         font = self.Top_label.font()
         font.setPointSize(20)
-        font.setBold
+        font.setBold(True)
         self.Top_label.setFont(font)
         
         # Top Tool Bar.
@@ -65,14 +66,12 @@ class Inventory_Page(QWidget):
         
         # Stretch columns cleanly across available space
         Table_header = self.table_view.horizontalHeader()
-        if Table_header is not None:
-            Table_header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
+        Table_header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
         
     def set_model(self):
         self.Item_model = QStandardItemModel()
         self.Item_model.setHorizontalHeaderLabels(["ID", "Name", "Cost", "Quantity", "Description", "Entry Date", "Expirey Date"])
         
-        self.table_view.setModel(self.Item_model)
         # Adding Items to Table
         items = self.inventory.get_all_items()
         for item in items:
@@ -85,6 +84,13 @@ class Inventory_Page(QWidget):
                 item["entry_date"],
                 item["expiry_date"]
             )
+        
+        # Creating the Filter Modal
+        self.proxy_model = Filter_Inventory()
+        self.proxy_model.setSourceModel(self.Item_model)
+
+        # Set PROXY model to View (Not Item_model directly)
+        self.table_view.setModel(self.proxy_model)
         
     def add_item_to_table(self, id, name, cost, quantity, description, entry_date, expirey_date):
         row = [
@@ -123,3 +129,31 @@ class Inventory_Page(QWidget):
                 item["entry_date"],
                 item["expiry_date"]
             )
+    def filter_search(self, text):
+        # Case-insensitive search regex
+        regex = QRegularExpression(
+            QRegularExpression.escape(text),
+            QRegularExpression.PatternOption.CaseInsensitiveOption,
+        )
+        self.proxy_model.setFilterRegularExpression(regex)
+    
+class Filter_Inventory(QSortFilterProxyModel):
+    def filterAcceptsRow(self, source_row, source_parent):
+        # If no search text is typed, show all rows
+        regex = self.filterRegularExpression()
+        if not regex.pattern():
+            return True
+
+        model = self.sourceModel()
+
+        # Column 1 = Name, Column 4 = Description
+        name_idx = model.index(source_row, 1, source_parent)
+        desc_idx = model.index(source_row, 4, source_parent)
+
+        name_text = str(model.data(name_idx, Qt.ItemDataRole.DisplayRole) or "")
+        desc_text = str(model.data(desc_idx, Qt.ItemDataRole.DisplayRole) or "")
+
+        # Check if either column matches search query
+        return bool(
+            regex.match(name_text).hasMatch() or regex.match(desc_text).hasMatch()
+        )

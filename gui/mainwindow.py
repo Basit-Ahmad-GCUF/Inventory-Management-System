@@ -2,7 +2,7 @@ from PyQt6.QtWidgets import (
     QMainWindow, QWidget, QHBoxLayout, 
     QVBoxLayout, QPushButton, QStackedWidget, QLabel
 )
-from gui.inventory_page import Inventory_Page
+from gui.inventory.inventory_page import Inventory_Page
 
 class MainWindow(QMainWindow):
     def __init__(self, inventory):
