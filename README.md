@@ -18,23 +18,24 @@ A Python-based Inventory and Billing Management System with a GUI built using Py
 ```
 Inventory Management/
 ├── bill/
-|     ├── bill_item.py
-|     ├── billingmanager.py
-|     └── bills.py
+│     ├── bill_item.py
+│     ├── billingmanager.py
+│     └── bills.py
 ├── data/
-|     ├── datamanager.py
-|     └── (inventory.db)
+│     ├── datamanager.py
+│     └── (inventory.db)
 ├── gui/
-|     ├── add_item_dialog.py
-|     ├── inventory_page.py
-|     ├── loginwindow.py
-|     └── mainwindow.py
+│     ├── inventory/
+│     │      ├── add_item_dialog.py
+│     │      └── inventory_page.py
+│     ├── loginwindow.py
+│     └── mainwindow.py
 ├── inventory/
-|     └── inventory.py
+│     └── inventory.py
 ├── users/
-|     ├── authenticate.py
-|     ├── controller.py
-|     └── users.py
+│     ├── authenticate.py
+│     ├── controller.py
+│     └── users.py
 └── main.py
 
 ```
