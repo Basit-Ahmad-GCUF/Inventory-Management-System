@@ -42,6 +42,7 @@ Inventory Management/
 
 ## 🖼️ Images
 
+<img width="1920" height="1001" alt="Screenshot (39)" src="https://github.com/user-attachments/assets/b121c71a-ce68-462d-b2f5-54127fd397a2" />
 
 
 ## ▶️ How to Run
