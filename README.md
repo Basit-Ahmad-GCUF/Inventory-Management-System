@@ -40,10 +40,12 @@ Inventory Management/
 └── main.py
 
 ```
+## ▶️ Video
 
-## 🖼️ Images
+[Watch Demo on LinkedIn](https://lnkd.in/defc7V4D)
 
-<img width="1920" height="1001" alt="Screenshot (39)" src="https://github.com/user-attachments/assets/b121c71a-ce68-462d-b2f5-54127fd397a2" />
+## 🖼️ Image
+
 <img width="1920" height="996" alt="Screenshot (41)" src="https://github.com/user-attachments/assets/a626cd6c-e6c7-4a1f-974e-72083e27af2c" />
 
 ## ▶️ How to Run
