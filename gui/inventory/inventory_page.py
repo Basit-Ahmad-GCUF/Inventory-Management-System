@@ -5,6 +5,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
 from PyQt6.QtCore import QRegularExpression, QSortFilterProxyModel, Qt
 from gui.inventory.add_item_dialog import Add_Item
+from gui.inventory.modify_item_dialog import Modify_Item
 
 class Inventory_Page(QWidget):
     
@@ -17,8 +18,9 @@ class Inventory_Page(QWidget):
         self.set_connection()
     
     def set_connection(self):
-        self.Add_button.clicked.connect(self.manage_add_item)
         self.search_bar.textChanged.connect(self.filter_search)
+        self.Add_button.clicked.connect(self.manage_add_item)
+        self.Modify_button.clicked.connect(self.manage_modify_item)
     
     def set_ui(self):
         # Top Text Headers.
@@ -136,7 +138,53 @@ class Inventory_Page(QWidget):
             QRegularExpression.PatternOption.CaseInsensitiveOption,
         )
         self.proxy_model.setFilterRegularExpression(regex)
+        
+    def manage_modify_item(self):
+        self.dialog = Modify_Item()
+        self.dialog.show()
+        self.dialog.data_saved.connect(self.save_modified_data)
+        self.dialog.request_search.connect(self.manual_data_modification)
+        
+        # Auto-populate if user selected a row in QTableView before clicking Modify
+        selected = self.table_view.selectionModel().selectedRows()
+        if selected:
+            row = selected[0].row()
+            item_id = self.proxy_model.index(row, 0).data()
+            self.dialog.id_input.setText(str(item_id))
+            item_data = self.inventory.get_item_by_id(item_id)
+            self.dialog.fill_fields(item_data)
     
+    def manual_data_modification(self, item_id: str):
+        if item_id:
+            item_data = self.inventory.get_item_by_id(item_id)
+            self.dialog.fill_fields(item_data)        
+    
+    def save_modified_data(self, data: dict):
+        self.inventory.modify_item(
+            data["id"],
+            data["name"],
+            data["cost"],
+            data["quantity"],
+            data["description"],
+            data["entry_date"],
+            data["expiry_date"]
+        )
+        self.refresh_table()
+
+    def refresh_table(self):
+        self.Item_model.removeRows(0, self.Item_model.rowCount())
+
+        for item in self.inventory.get_all_items():
+            self.add_item_to_table(
+                item["id"],
+                item["name"],
+                item["cost"],
+                item["quantity"],
+                item["description"],
+                item["entry_date"],
+                item["expiry_date"]
+            )
+        
 class Filter_Inventory(QSortFilterProxyModel):
     def filterAcceptsRow(self, source_row, source_parent):
         # If no search text is typed, show all rows

@@ -109,7 +109,13 @@ class Data_Manager:
 
     def get_all_items(self):
         return self.fetch_all("SELECT * FROM items")
-        
+    
+    def get_item_by_id(self, id):
+        return self.fetch_one(
+            "SELECT * FROM items WHERE id = ?",
+            (id,)
+            )
+    
     def search_items(self, keyword):
         return self.fetch_all(
             "SELECT * FROM items WHERE name LIKE ?",

@@ -36,7 +36,7 @@ class MainWindow(QMainWindow):
     
     def set_sidebar(self):
         sidebar = QWidget()
-        sidebar.setFixedWidth(250)
+        sidebar.setFixedWidth(200)
         
         sidebar_layout = QVBoxLayout(sidebar)
         

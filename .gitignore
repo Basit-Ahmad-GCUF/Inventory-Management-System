@@ -1,8 +1,8 @@
 __pycache__/
 *.pyc
 *.pyo
-.env
-.db
+*.env
+*.db
 creds.env
 *.sqlite
 .vscode/

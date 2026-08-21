@@ -27,6 +27,7 @@ Inventory Management/
 ├── gui/
 │     ├── inventory/
 │     │      ├── add_item_dialog.py
+│     │      ├── modify_item_dialog.py
 │     │      └── inventory_page.py
 │     ├── loginwindow.py
 │     └── mainwindow.py
