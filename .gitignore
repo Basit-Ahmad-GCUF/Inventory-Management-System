@@ -2,7 +2,11 @@ __pycache__/
 *.pyc
 *.pyo
 *.env
-*.db
 creds.env
-*.sqlite
 .vscode/
+
+# Ignore every .db file in any directory or subfolder
+*.db
+**/*.db
+*.sqlite
+**/*.sqlite
