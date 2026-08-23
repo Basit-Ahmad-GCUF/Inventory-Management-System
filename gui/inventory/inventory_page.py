@@ -1,5 +1,5 @@
 from PyQt6.QtWidgets import (
-    QWidget, QVBoxLayout, QHBoxLayout, QLabel,
+    QWidget, QVBoxLayout, QHBoxLayout, QLabel, QMessageBox, 
     QLineEdit, QPushButton, QTableView, QHeaderView, QAbstractItemView, QDialog
 )
 from PyQt6.QtGui import QStandardItemModel, QStandardItem
@@ -21,6 +21,7 @@ class Inventory_Page(QWidget):
         self.search_bar.textChanged.connect(self.filter_search)
         self.Add_button.clicked.connect(self.manage_add_item)
         self.Modify_button.clicked.connect(self.manage_modify_item)
+        self.Delete_button.clicked.connect(self.delete_item_from_table)
     
     def set_ui(self):
         # Top Text Headers.
@@ -66,33 +67,38 @@ class Inventory_Page(QWidget):
         self.main_inventory_layout.addWidget(self.top_tool_bar)
         self.main_inventory_layout.addWidget(self.table_view)
         
-        # Stretch columns cleanly across available space
-        Table_header = self.table_view.horizontalHeader()
-        Table_header.setSectionResizeMode(QHeaderView.ResizeMode.Stretch)
-        
     def set_model(self):
-        self.Item_model = QStandardItemModel()
-        self.Item_model.setHorizontalHeaderLabels(["ID", "Name", "Cost", "Quantity", "Description", "Entry Date", "Expirey Date"])
-        
-        # Adding Items to Table
-        items = self.inventory.get_all_items()
-        for item in items:
-            self.add_item_to_table(
-                item["id"],
-                item["name"],
-                item["cost"],
-                item["quantity"],
-                item["description"],
-                item["entry_date"],
-                item["expiry_date"]
-            )
-        
-        # Creating the Filter Modal
-        self.proxy_model = Filter_Inventory()
-        self.proxy_model.setSourceModel(self.Item_model)
+            self.Item_model = QStandardItemModel()
+            self.Item_model.setHorizontalHeaderLabels(["ID", "Name", "Cost", "Quantity", "Description", "Entry Date", "Expirey Date"])
+            
+            # Adding Items to Table
+            items = self.inventory.get_all_items()
+            for item in items:
+                self.add_item_to_table(
+                    item["id"],
+                    item["name"],
+                    item["cost"],
+                    item["quantity"],
+                    item["description"],
+                    item["entry_date"],
+                    item["expiry_date"]
+                )
+            
+            # Creating the Filter Modal
+            self.proxy_model = Filter_Inventory()
+            self.proxy_model.setSourceModel(self.Item_model)
 
-        # Set PROXY model to View (Not Item_model directly)
-        self.table_view.setModel(self.proxy_model)
+             # Set PROXY model to View (Not Item_model directly)
+            self.table_view.setModel(self.proxy_model)
+            
+            header = self.table_view.horizontalHeader()
+            header.setSectionResizeMode(0, QHeaderView.ResizeMode.ResizeToContents)
+            header.setSectionResizeMode(1, QHeaderView.ResizeMode.Stretch)
+            header.setSectionResizeMode(2, QHeaderView.ResizeMode.ResizeToContents)
+            header.setSectionResizeMode(3, QHeaderView.ResizeMode.ResizeToContents)
+            header.setSectionResizeMode(4, QHeaderView.ResizeMode.Stretch)
+            header.setSectionResizeMode(5, QHeaderView.ResizeMode.ResizeToContents)
+            header.setSectionResizeMode(6, QHeaderView.ResizeMode.ResizeToContents)
         
     def add_item_to_table(self, id, name, cost, quantity, description, entry_date, expirey_date):
         row = [
@@ -121,7 +127,6 @@ class Inventory_Page(QWidget):
                 item["expiry_date"]
             )
             # Adding to Table
-            print(item)
             self.add_item_to_table(
                 item["id"],
                 item["name"],
@@ -170,7 +175,40 @@ class Inventory_Page(QWidget):
             data["expiry_date"]
         )
         self.refresh_table()
-
+    
+    def delete_item_from_table(self):
+        selected_row = self.table_view.selectionModel().selectedRows()
+        
+        if not selected_row:
+            QMessageBox.warning(
+                self,
+                "Selection Required",
+                "Please select an item from the table first."
+            )
+            return
+        
+        
+        row = selected_row[0].row()
+        item_id = self.proxy_model.index(row, 0).data()
+        item_name = self.proxy_model.index(row, 1).data()
+        
+        confirmation = QMessageBox.question(
+            self,   # Parent
+            "Selection Required", # Window Name
+            f"   Are You Sure You Want to Delete the Item? \n─────────────────────────────────── \n Name : {item_name} \n ID : {item_id}", # Message
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, # Buttons
+            QMessageBox.StandardButton.No   # Default Pointing on the Button No
+        )
+        
+        if confirmation == QMessageBox.StandardButton.Yes:
+            self.inventory.delete_item(item_id)
+            self.refresh_table()
+            QMessageBox.information(
+                self,
+                "Item Deletion",
+                f"  Deleted the Item with \n─────────────────────────────────── \n Name : {item_name} \n ID : {item_id}."
+            )
+    
     def refresh_table(self):
         self.Item_model.removeRows(0, self.Item_model.rowCount())
 
@@ -184,7 +222,7 @@ class Inventory_Page(QWidget):
                 item["entry_date"],
                 item["expiry_date"]
             )
-        
+    
 class Filter_Inventory(QSortFilterProxyModel):
     def filterAcceptsRow(self, source_row, source_parent):
         # If no search text is typed, show all rows

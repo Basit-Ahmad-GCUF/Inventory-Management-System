@@ -116,6 +116,12 @@ class Data_Manager:
             (id,)
             )
     
+    def get_item_by_name(self, name):
+        return self.fetch_one(
+            "SELECT * FROM items WHERE name = ?",
+            (name,)
+            )
+    
     def search_items(self, keyword):
         return self.fetch_all(
             "SELECT * FROM items WHERE name LIKE ?",

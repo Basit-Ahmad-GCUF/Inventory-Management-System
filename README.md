@@ -2,12 +2,17 @@
 
 A Python-based Inventory and Billing Management System with a GUI built using PyQt6.
 
-## 🚀 Features
+## 🚀 Planned Features
 - 📋 Inventory Management — Add, Edit, Delete, Search items
 - 🧾 Billing System — Generate and manage bills
 - 👥 User Management — Admin and Employee roles
 - 📊 Reports — Daily, Weekly, Monthly
 - ⚙️ Settings — Shop name, currency, tax rate
+
+## 🛠️ Completed Features
+
+- 📋 **Inventory Management** — Add, Edit, Delete, Search items ✔️
+- 🧾 **Billing System** — Generate (Still Under Development) ✔️
 
 ## 🛠️ Tech Stack
 - Language : **Python 🐍**
@@ -29,6 +34,8 @@ Inventory Management/
 │     │      ├── add_item_dialog.py
 │     │      ├── modify_item_dialog.py
 │     │      └── inventory_page.py
+│     ├── bills/
+│     │      └── billing_page.py
 │     ├── loginwindow.py
 │     └── mainwindow.py
 ├── inventory/

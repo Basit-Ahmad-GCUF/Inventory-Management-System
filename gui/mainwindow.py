@@ -3,6 +3,7 @@ from PyQt6.QtWidgets import (
     QVBoxLayout, QPushButton, QStackedWidget, QLabel
 )
 from gui.inventory.inventory_page import Inventory_Page
+from gui.bills.billing_page import Billing_Window
 
 class MainWindow(QMainWindow):
     def __init__(self, inventory):
@@ -51,12 +52,15 @@ class MainWindow(QMainWindow):
         self.Reports_label = QLabel("Reports")
         self.Additional_label = QLabel("Additionals")
         
+        self.seperating_line = QLabel("───────────────────────────────────────────")
+        
         sidebar_layout.addWidget(self.Main_label)
         sidebar_layout.addWidget(self.Dashboard_button)
         sidebar_layout.addWidget(self.Inventory_button)
         sidebar_layout.addWidget(self.Billing_button)
         sidebar_layout.addWidget(self.Reports_label)
         sidebar_layout.addWidget(self.Report_button)
+        sidebar_layout.addWidget(self.seperating_line)
         sidebar_layout.addWidget(self.Additional_label)
         sidebar_layout.addWidget(self.settings_button)
         sidebar_layout.addWidget(self.Logout_buton)
@@ -73,9 +77,7 @@ class MainWindow(QMainWindow):
         
         p2 = Inventory_Page(self.inventory)
         
-        p3 = QWidget()
-        p3_layout = QVBoxLayout(p3)
-        p3_layout.addWidget(QLabel("Billing, Bills and Thier Management Will be here"))
+        p3 = Billing_Window(self.inventory)
                 
         p4 = QWidget()
         p4_layout = QVBoxLayout(p4)

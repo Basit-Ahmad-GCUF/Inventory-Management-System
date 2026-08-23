@@ -21,6 +21,9 @@ class Inventory:
     def get_item_by_id(self, item_id):
         return self.db.get_item_by_id(item_id)
     
+    def get_item_by_name(self, item_name):
+        return self.db.get_item_by_name(item_name)
+    
     def search_items(self, keyword):
         return self.db.search_items(keyword)
     
