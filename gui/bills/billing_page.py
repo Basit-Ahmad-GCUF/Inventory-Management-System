@@ -16,8 +16,8 @@ class Billing_Window(QWidget):
         self.names = [item["name"] for item in self.items]
         
         self.set_ui()
-        self.set_connections()
         self.set_model()
+        self.set_connections()
         
     def set_ui(self):
         
@@ -28,7 +28,13 @@ class Billing_Window(QWidget):
         Left_layout = QVBoxLayout(Left_panel)
         Right_panel = QWidget()
         Right_layout = QVBoxLayout(Right_panel)
-
+        
+        self.Top_label = QLabel("Create Bills")
+        font = self.Top_label.font()
+        font.setPointSize(20)
+        font.setBold(True)
+        self.Top_label.setFont(font)
+        
         self.Search_by_id_label = QLabel("Search by ID:")
         
         self.Get_id_to_search = QLineEdit()
@@ -60,6 +66,7 @@ class Billing_Window(QWidget):
         self.Get_Cutomer_name.setPlaceholderText("Enter Customer Name")
         self.Get_Cutomer_name.setText("Shop Keeper")
         
+        Left_layout.addWidget(self.Top_label)
         Left_layout.addWidget(self.Search_by_id_label)
         Left_layout.addWidget(self.Get_id_to_search)
         Left_layout.addWidget(self.Search_by_name_label)
@@ -96,6 +103,9 @@ class Billing_Window(QWidget):
         self.qty_input.setMaximum(99999)
         
         self.add_button = QPushButton("Add to Bill")
+        self.add_button.setDefault(True)
+        self.add_button.setEnabled(False)
+        self.delete_button = QPushButton("Remove")
         
         grid.addWidget(self.name_label,  0, 0)  # row 0, col 0
         grid.addWidget(self.cost_label,  0, 1)  # row 0, col 1
@@ -106,8 +116,7 @@ class Billing_Window(QWidget):
         grid.addWidget(self.desc_label,  2, 0)
         grid.addWidget(self.desc_input,  3, 0, 1, 2)  # row 2, col 0, spans 1 row 2 cols
         grid.addWidget(self.add_button,  3, 2)  # row 2, col 2
-        
-        self.error_label = QLabel("")
+        grid.addWidget(self.delete_button, 4, 2)
         
         self.table_view = QTableView()
         # Table Styling & Scroll Behavior
@@ -139,7 +148,6 @@ class Billing_Window(QWidget):
         self.bottom_bar.addWidget(self.discount_label)
         
         Right_layout.addLayout(grid)
-        Right_layout.addWidget(self.error_label)
         Right_layout.addWidget(self.table_view)
         Right_layout.addLayout(self.bottom_bar)
         
@@ -152,6 +160,12 @@ class Billing_Window(QWidget):
         self.Get_id_to_search.returnPressed.connect(self.search_item_by_id)
         self.Get_name_to_search.returnPressed.connect(self.search_item_by_name)
         self.add_button.clicked.connect(self.add_item_to_cart)
+        self.delete_button.clicked.connect(self.remove_item_from_cart)
+        self.Item_model.itemChanged.connect(self.item_changed)
+        self.qty_input.textChanged.connect(self.validate_add_button)
+        self.name_input.textChanged.connect(self.validate_add_button)
+        QShortcut(QKeySequence("F1"), self).activated.connect(self.clear_ALL_fields)
+        QShortcut(QKeySequence("del"), self).activated.connect(self.remove_item_from_cart)
         
     def set_model(self):
         
@@ -188,7 +202,19 @@ class Billing_Window(QWidget):
         self.name_input.setText(name)
         self.cost_input.setText(str(cost))
         self.desc_input.setText(description)
-    
+    def clear_fields(self):
+        self.Get_id_to_search.clear()
+        self.Get_name_to_search.clear()
+        self.name_input.clear()
+        self.desc_input.clear()
+        self.qty_input.setValue(0)
+        self.cost_input.clear()
+    def clear_ALL_fields(self):
+        self.clear_fields()
+        self.cart.clear()
+        self.Item_model.removeRows(0, self.Item_model.rowCount())
+        self.Calculate_total()
+        
     def search_item_by_name(self):
         item_name = self.Get_name_to_search.text()
         item_data = self.inventory.get_item_by_name(item_name)
@@ -196,8 +222,7 @@ class Billing_Window(QWidget):
         if item_data:
             self.current_selected_item = item_data
             self.fill_fields(item_data["name"], item_data["cost"], item_data["description"])
-            self.Get_id_to_search.setText("")
-            self.Get_name_to_search.setText("")
+            self.searched_item_id = item_data["id"]
         else:
             QMessageBox.warning(
                 self,
@@ -205,6 +230,7 @@ class Billing_Window(QWidget):
                 f"Item With Name '{item_name}' not Found",
                 QMessageBox.StandardButton.Ok
             )
+        self.Get_name_to_search.clear()
     
     def search_item_by_id(self):
         item_id = self.Get_id_to_search.text()
@@ -213,8 +239,6 @@ class Billing_Window(QWidget):
         if item_data:
             self.current_selected_item = item_data
             self.fill_fields(item_data["name"], item_data["cost"], item_data["description"])
-            self.Get_id_to_search.setText("")
-            self.Get_name_to_search.setText("")
         else:
             QMessageBox.warning(
                 self,
@@ -222,6 +246,32 @@ class Billing_Window(QWidget):
                 f"Item With ID '{item_id}' not Found",
                 QMessageBox.StandardButton.Ok
             )
+        self.Get_id_to_search.clear()
+    
+    def remove_item_from_cart(self) -> None:
+        selected_row = self.table_view.selectionModel().selectedRows()
+        if selected_row:
+            row = selected_row[0].row()
+            item_name = self.Item_model.index(row, 0).data()
+            confirmation = QMessageBox.question(
+                self,   # Parent
+                "Selection Required", # Window Name
+                f"   Are You Sure You Want to Delete the Item? \n─────────────────────────────────── \n Name : {item_name}", # Message
+                QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No, # Buttons
+                QMessageBox.StandardButton.No   # Default Pointing on the Button No
+            )
+            
+            if confirmation == QMessageBox.StandardButton.Yes:
+                self.cart.pop(row)
+                self.refresh_table()
+                self.Calculate_total()
+                QMessageBox.information(
+                    self,
+                    "Item Deletion",
+                    f"  Deleted the Item from the table with \n─────────────────────────────────── \n Name : {item_name}."
+                )
+        self.clear_fields()
+        
     
     def add_item_to_cart(self) -> None:
         
@@ -246,6 +296,7 @@ class Billing_Window(QWidget):
         Sub_total = float(self.cost_input.text()) * int(self.qty_input.text())
         
         item = {
+            "id" : self.searched_item_id,
             "name": self.name_input.text(),
             "cost": self.cost_input.text(),
             "quantity": self.qty_input.text(),
@@ -266,6 +317,7 @@ class Billing_Window(QWidget):
         self.cart.append(item)
         self.add_item_to_table(item["name"], item["cost"], item["quantity"], item["sub_total"])
         self.Calculate_total()
+        self.clear_fields()
         
     def Calculate_total(self):
         Bill_total = sum(item["sub_total"] for item in self.cart)
@@ -274,3 +326,43 @@ class Billing_Window(QWidget):
         
         self.total_label.setText(f"Total: {Bill_total:.2f}")
         self.discount_label.setText(f"After Discount: {Discounted_total:.2f}")
+    
+    def item_changed(self, item : QStandardItem) ->  None:
+        
+        row = item.row()
+        col = item.column()
+        
+        if col == 2:
+            cost = float(self.Item_model.item(row, 1).text())
+            new_qty = int(item.text())
+            new_subtotal = cost * new_qty
+            
+            self.Item_model.blockSignals(True) # Blocking Signals from Table so No recurssion happens
+            self.Item_model.item(row, 3).setText(f"{new_subtotal:.2f}")
+            self.Item_model.blockSignals(False) # Re Enabling After Editing.
+            
+            self.cart[row]["quantity"] = new_qty
+            self.cart[row]["sub_total"] = new_subtotal
+            
+            self.Calculate_total()
+        else:    
+            return None
+    
+    def validate_add_button(self):
+        name_filled = len(self.name_input.text()) > 0
+        qty_filled = self.qty_input.value() > 0
+        
+        all_filled = name_filled and qty_filled
+        
+        self.add_button.setEnabled(all_filled)
+    
+    def refresh_table(self):
+        self.Item_model.removeRows(0, self.Item_model.rowCount())
+        
+        for item in self.cart:
+            self.add_item_to_table(
+                item["name"],
+                item["cost"],
+                item["quantity"],
+                item["sub_total"]
+            )
