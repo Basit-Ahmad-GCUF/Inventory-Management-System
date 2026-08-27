@@ -10,4 +10,7 @@ creds.env
 **/*.db
 *.sqlite
 **/*.sqlite
+<<<<<<< HEAD
 data/Inventory.db
+=======
+>>>>>>> 04961d94f3d9263913f5bf56a0dae4b0c67a4bf6
