@@ -4,12 +4,18 @@ from PyQt6.QtWidgets import (
     QSpinBox, QDoubleSpinBox, QMessageBox
 )
 from PyQt6.QtGui import QShortcut, QKeySequence, QStandardItemModel, QStandardItem
-from PyQt6.QtCore import Qt
+from PyQt6.QtCore import Qt, pyqtSignal
+from datetime import datetime
+import uuid
 
 class Billing_Window(QWidget):
-    def __init__(self, db):
+    
+    Bill_Saved = pyqtSignal()
+    
+    def __init__(self, db, bill_db):
         super().__init__()
         
+        self.bill_db = bill_db
         self.inventory = db
         self.cart = []
         self.items = self.inventory.get_all_items()
@@ -166,6 +172,7 @@ class Billing_Window(QWidget):
         self.name_input.textChanged.connect(self.validate_add_button)
         QShortcut(QKeySequence("F1"), self).activated.connect(self.clear_ALL_fields)
         QShortcut(QKeySequence("del"), self).activated.connect(self.remove_item_from_cart)
+        QShortcut(QKeySequence("F2"), self).activated.connect(self.Finalize_bill)
         
     def set_model(self):
         
@@ -315,7 +322,12 @@ class Billing_Window(QWidget):
                     return
         
         self.cart.append(item)
-        self.add_item_to_table(item["name"], item["cost"], item["quantity"], item["sub_total"])
+        self.add_item_to_table(
+            item["name"],
+            item["cost"],
+            item["quantity"],
+            item["sub_total"]
+            )
         self.Calculate_total()
         self.clear_fields()
         
@@ -365,4 +377,40 @@ class Billing_Window(QWidget):
                 item["cost"],
                 item["quantity"],
                 item["sub_total"]
+            )
+    
+    def Deduct_bill_from_inventory(self) -> None:
+        for item in self.cart:
+            self.inventory.deduct_stock(item["id"], item["quantity"])
+    
+    def save_bill(self):
+        # (self, bill_id, biller, datetime_str, total_cost, bill_items_list):
+        bill_id = str(uuid.uuid4())[:8].upper()
+        datetime_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        Bill_total = sum(item["sub_total"] for item in self.cart)
+        
+        if self.Get_discount_on_bill.value() > 0.00:
+            Discount_percentage = self.Get_discount_on_bill.value()
+            Bill_total = Bill_total - (Bill_total / 100) * Discount_percentage
+        
+        self.bill_db.add_bill(bill_id, "Shop Keeper", datetime_str, Bill_total, self.cart)
+        self.Bill_Saved.emit()
+    
+    def Finalize_bill(self):
+        
+        confirmation = QMessageBox.question(
+            self,
+            "Finalize Bill",
+            f"Are You Sure to finalize the Bill \n{self.total_label.text()} \n With Discount of : {self.Get_discount_on_bill.value()} \n{self.discount_label.text()} ",
+            QMessageBox.StandardButton.Yes | QMessageBox.StandardButton.No
+        )
+        
+        if confirmation == QMessageBox.StandardButton.Yes:
+            self.Deduct_bill_from_inventory()
+            self.save_bill()
+            QMessageBox.information(
+                self,
+                "Bill Finalized",
+                "Bill Successfully Saved!",
+                QMessageBox.StandardButton.Ok
             )

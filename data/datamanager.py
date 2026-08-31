@@ -127,7 +127,12 @@ class Data_Manager:
             "SELECT * FROM items WHERE name LIKE ?",
             (f"%{keyword}%",)
         )
-
+    
+    def deduct_stock_from_inventory(self, item_id, quantity_sold):
+        self.execute(
+            "UPDATE items SET quantity = quantity - ? WHERE id = ?",
+            (quantity_sold, item_id)
+        )
 
     # ==================== USER OPERATIONS ====================
     def add_user(self, username, password_hash, role, email):
@@ -160,21 +165,17 @@ class Data_Manager:
 
     # ==================== BILL OPERATIONS ====================
     def add_bill(self, bill_id, biller, datetime_str, total_cost, bill_items_list):
-        """
-        bill_items_list should be a list of tuples:
-        [("Apple Watch", 1500.0, 2, 3000.0), ("Sound Bar", 1250.0, 1, 1250.0)]
-        """
         # 1. Insert main bill info
-        bill_query = "INSERT INTO bills (bill_id, biller, datetime, total_cost) VALUES (?, ?, ?, ?)"
+        bill_query = "INSERT INTO bill (bill_id, biller, datetime, total_cost) VALUES (?, ?, ?, ?)"
         self.execute(bill_query, (bill_id, biller, datetime_str, total_cost))
 
         # 2. Insert all items associated with this bill
-        item_query = "INSERT INTO bill_items (bill_id, item_id, name, cost, quantity, subtotal) VALUES (?, ?, ?, ?, ?)"
+        item_query = "INSERT INTO bill_items (bill_id, item_id, name, cost, quantity, subtotal) VALUES (?, ?, ?, ?, ?, ?)"
         for item_id, name, cost, qty, subtotal in bill_items_list:
             self.execute(item_query, (bill_id,item_id, name, cost, qty, subtotal))
 
     def get_all_bills(self):
-        return self.fetch_all("SELECT * FROM bills")
+        return self.fetch_all("SELECT * FROM bill")
 
     def get_bill_items(self, bill_id):
         return self.fetch_all("SELECT * FROM bill_items WHERE bill_id = ?", (bill_id,))

@@ -27,3 +27,5 @@ class Inventory:
     def search_items(self, keyword):
         return self.db.search_items(keyword)
     
+    def deduct_stock(self, item_id, quantity_sold):
+        self.db.deduct_stock_from_inventory(item_id, quantity_sold)

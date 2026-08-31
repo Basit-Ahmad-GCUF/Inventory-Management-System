@@ -6,9 +6,10 @@ from gui.inventory.inventory_page import Inventory_Page
 from gui.bills.billing_page import Billing_Window
 
 class MainWindow(QMainWindow):
-    def __init__(self, inventory):
+    def __init__(self, inventory, bill_controller):
         super().__init__()
         self.inventory = inventory
+        self.bill_controller = bill_controller
         self._build_ui()
         self._connect_signals()
 
@@ -22,19 +23,10 @@ class MainWindow(QMainWindow):
         
         # Main Layout That is Horizontal.
         self.main_parent_layout = QHBoxLayout(central_widget)
-        
         # Setting Up the Sidebar and Content Menu.
         self.set_sidebar()
         self.set_context_menu()
-
-    def _connect_signals(self):
         
-        self.Dashboard_button.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(0))
-        self.Inventory_button.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(1))
-        self.Billing_button.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(2))
-        self.Report_button.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(3))
-        self.settings_button.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(4))
-    
     def set_sidebar(self):
         sidebar = QWidget()
         sidebar.setFixedWidth(200)
@@ -75,9 +67,9 @@ class MainWindow(QMainWindow):
         p1_layout = QVBoxLayout(p1)
         p1_layout.addWidget(QLabel("Welcome to the Dashboard"))
         
-        p2 = Inventory_Page(self.inventory)
+        self.p2 = Inventory_Page(self.inventory)
         
-        p3 = Billing_Window(self.inventory)
+        self.p3 = Billing_Window(self.inventory, self.bill_controller)
                 
         p4 = QWidget()
         p4_layout = QVBoxLayout(p4)
@@ -88,9 +80,19 @@ class MainWindow(QMainWindow):
         p5_layout.addWidget(QLabel("All settings are Here."))
         
         self.stacked_widget.addWidget(p1)
-        self.stacked_widget.addWidget(p2)
-        self.stacked_widget.addWidget(p3)
+        self.stacked_widget.addWidget(self.p2)
+        self.stacked_widget.addWidget(self.p3)
         self.stacked_widget.addWidget(p4)
         self.stacked_widget.addWidget(p5)
         
         self.main_parent_layout.addWidget(self.stacked_widget)
+    
+    def _connect_signals(self):
+        
+        self.p3.Bill_Saved.connect(self.p2.refresh_table)
+        
+        self.Dashboard_button.clicked.connect(lambda:  self.stacked_widget.setCurrentIndex(0))
+        self.Inventory_button.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(1))
+        self.Billing_button.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(2))
+        self.Report_button.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(3))
+        self.settings_button.clicked.connect(lambda: self.stacked_widget.setCurrentIndex(4))
