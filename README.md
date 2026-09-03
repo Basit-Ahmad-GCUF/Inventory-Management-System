@@ -55,6 +55,7 @@ Inventory Management/
 
 <img width="1920" height="996" alt="Screenshot (41)" src="https://github.com/user-attachments/assets/a626cd6c-e6c7-4a1f-974e-72083e27af2c" />
 <img width="1919" height="1003" alt="image" src="https://github.com/user-attachments/assets/7aba7fd9-f10c-4162-b1ff-b4b20a7d3624" />
+<img width="959" height="504" alt="image" src="https://github.com/user-attachments/assets/59042222-09af-46e6-bfc5-46a7f94f0978" />
 
 ## ▶️ How to Run
 ```bash
