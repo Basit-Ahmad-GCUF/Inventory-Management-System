@@ -36,7 +36,10 @@ Inventory Management/
 │     │      └── inventory_page.py
 │     ├── bills/
 │     │      └── billing_page.py
-│     ├── loginwindow.py
+│     ├── auth
+│     │      └── loginwindow.py
+│     ├── reports
+│     │      └── reportwindow.py
 │     └── mainwindow.py
 ├── inventory/
 │     └── inventory.py

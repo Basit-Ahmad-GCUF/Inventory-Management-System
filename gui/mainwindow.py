@@ -4,6 +4,7 @@ from PyQt6.QtWidgets import (
 )
 from gui.inventory.inventory_page import Inventory_Page
 from gui.bills.billing_page import Billing_Window
+from gui.reports.reportwindow import Report_Window
 
 class MainWindow(QMainWindow):
     def __init__(self, inventory, bill_controller):
@@ -71,9 +72,7 @@ class MainWindow(QMainWindow):
         
         self.p3 = Billing_Window(self.inventory, self.bill_controller)
                 
-        p4 = QWidget()
-        p4_layout = QVBoxLayout(p4)
-        p4_layout.addWidget(QLabel("Reports will be show here"))
+        self.p4 = Report_Window(self.inventory, self.bill_controller)
                 
         p5 = QWidget()
         p5_layout = QVBoxLayout(p5)
@@ -82,7 +81,7 @@ class MainWindow(QMainWindow):
         self.stacked_widget.addWidget(p1)
         self.stacked_widget.addWidget(self.p2)
         self.stacked_widget.addWidget(self.p3)
-        self.stacked_widget.addWidget(p4)
+        self.stacked_widget.addWidget(self.p4)
         self.stacked_widget.addWidget(p5)
         
         self.main_parent_layout.addWidget(self.stacked_widget)
