@@ -162,7 +162,6 @@ class Billing_Window(QWidget):
         
     def set_connections(self):
         self.Has_discount_cb.toggled.connect(self.Get_discount_on_bill.setEnabled)
-        # self.Completer.activated.connect(self.Get_name_to_search)
         self.Get_id_to_search.returnPressed.connect(self.search_item_by_id)
         self.Get_name_to_search.returnPressed.connect(self.search_item_by_name)
         self.add_button.clicked.connect(self.add_item_to_cart)
@@ -170,6 +169,8 @@ class Billing_Window(QWidget):
         self.Item_model.itemChanged.connect(self.item_changed)
         self.qty_input.textChanged.connect(self.validate_add_button)
         self.name_input.textChanged.connect(self.validate_add_button)
+        self.save_btn.clicked.connect(self.Finalize_bill)
+        self.clear_btn.clicked.connect(self.clear_ALL_fields)
         QShortcut(QKeySequence("F1"), self).activated.connect(self.clear_ALL_fields)
         QShortcut(QKeySequence("del"), self).activated.connect(self.remove_item_from_cart)
         QShortcut(QKeySequence("F2"), self).activated.connect(self.Finalize_bill)
@@ -388,12 +389,13 @@ class Billing_Window(QWidget):
         bill_id = str(uuid.uuid4())[:8].upper()
         datetime_str = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         Bill_total = sum(item["sub_total"] for item in self.cart)
+        Bill_items_list = [(item["id"], item["name"], item["cost"], item["quantity"], item["sub_total"]) for item in self.cart]
         
         if self.Get_discount_on_bill.value() > 0.00:
             Discount_percentage = self.Get_discount_on_bill.value()
             Bill_total = Bill_total - (Bill_total / 100) * Discount_percentage
         
-        self.bill_db.add_bill(bill_id, "Shop Keeper", datetime_str, Bill_total, self.cart)
+        self.bill_db.add_bill(bill_id, "Shop Keeper", datetime_str, Bill_total, Bill_items_list)
         self.Bill_Saved.emit()
     
     def Finalize_bill(self):

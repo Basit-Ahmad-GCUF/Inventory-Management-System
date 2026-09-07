@@ -1,6 +1,6 @@
 from PyQt6.QtWidgets import (
-    QMainWindow, QWidget, QHBoxLayout, 
-    QVBoxLayout, QPushButton, QStackedWidget, QLabel
+    QMainWindow, QWidget, QHBoxLayout, QGridLayout, 
+    QVBoxLayout, QPushButton, QStackedWidget, QLabel,
 )
 from gui.inventory.inventory_page import Inventory_Page
 from gui.bills.billing_page import Billing_Window

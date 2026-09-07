@@ -25,9 +25,45 @@ class Billing_Manager:
             "SELECT * FROM bill WHERE bill_id = ?", (bill_id,)
         )
         
-    # ==================== DATABASE OPERATIONS ====================
+        
     def get_bill_with_id(self, bill_id) -> dict:
         Bill = self.get_bill_by_id(bill_id)
         Bill["bill_items"] = self.get_bill_items(bill_id)    
         
         return Bill
+    
+    def get_daily_top_items(self, date_str):
+        query = """
+                SELECT name, SUM(quantity)
+                FROM bill_items
+                JOIN bill on bill_items.bill_id = bill.bill_id
+                WHERE DATE(bill.datetime) = ?
+                GROUP BY name
+                ORDER BY SUM(quantity) DESC
+                LIMIT 10
+                """
+        return self.db.fetch_all(query, (date_str,))
+    
+    def get_top_items(self, start_date_str, end_date_str):
+        query = """
+                SELECT name, SUM(quantity)
+                FROM bill_items
+                JOIN bill on bill_items.bill_id = bill.bill_id
+                WHERE DATE(bill.datetime) BETWEEN ? AND ?
+                GROUP BY name
+                ORDER BY SUM(quantity) DESC
+                LIMIT 10
+                """
+        return self.db.fetch_all(query, (start_date_str, end_date_str))
+    
+    def get_revenue_between_dates(self, start_date_str, end_date_str):
+        query = "SELECT SUM(total_cost) FROM bill WHERE DATE(datetime) BETWEEN ? AND ?"
+        result = self.db.fetch_one(query, (start_date_str, end_date_str))
+        revenue = result[0] if result[0] is not None else 0
+        return revenue
+    
+    def count_bills_between_dates(self, start_date_str, end_date_str):
+        query = "SELECT COUNT(*) FROM bill WHERE DATE(datetime) BETWEEN ? AND ?"
+        result = self.db.fetch_one(query, (start_date_str, end_date_str))
+        count = result[0] if result[0] is not None else 0
+        return count
