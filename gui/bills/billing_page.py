@@ -222,6 +222,7 @@ class Billing_Window(QWidget):
         self.cart.clear()
         self.Item_model.removeRows(0, self.Item_model.rowCount())
         self.Calculate_total()
+        self.cart.clear()
         
     def search_item_by_name(self):
         item_name = self.Get_name_to_search.text()
@@ -399,6 +400,15 @@ class Billing_Window(QWidget):
         self.Bill_Saved.emit()
     
     def Finalize_bill(self):
+        
+        if not self.cart:
+            QMessageBox.warning(
+                self,
+                "Empty Bill",
+                "Cannot Finalize an Empty Bill",
+                QMessageBox.StandardButton.Ok
+            )
+            return
         
         confirmation = QMessageBox.question(
             self,

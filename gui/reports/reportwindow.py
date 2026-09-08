@@ -44,7 +44,7 @@ class Report_Window(QWidget):
         main_layout = QGridLayout(self)
         
         self.title_label = QLabel("Reports")
-        self.title_label.setStyleSheet("font-weight: bold; font-size: 28px;")
+        self.title_label.setStyleSheet("font-weight: bold; font-size: 24px;")
         
         self.daily_button = QPushButton("Daily")
         self.weekly_button = QPushButton("Weekly")
